@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cara Ko · Work</title>
+<meta name="description" content="Portfolio of Cara Ko, visual artist and illustrator based in New Jersey.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="index.html">Cara Ko<span class="dot">.</span><small>Visual artist and illustrator</small></a>
+    <nav>
+      <a href="index.html" class="on">Work</a>
+      <a href="resume.html">Resume</a>
+      <a href="mailto:snowcara888@gmail.com">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="pic"><a href="#10"><img src="works/10-rat-race.jpg" alt="Rat Race"></a><span class="tag">Rat Race, 2026</span></div>
+    <div>
+      <h1>Paintings, drawings, prints, and objects about <em>bodies, beauty, and the quiet rules women are handed.</em></h1>
+      <p>Selected work, 2024 to 2026. Click any piece to read about it; the arrow keys move between works.</p>
+      <a class="cta" href="#gallery">See the work ↓</a>
+    </div>
+  </section>
+
+  <section class="gallery" id="gallery"></section>
+
+  <footer>
+    <span>© Cara Ko. All images are the artist’s own work.</span>
+    <span>snowcara888@gmail.com · Palisades Park, New Jersey</span>
+  </footer>
+</div>
+
+<div class="lb" id="lb" aria-hidden="true">
+  <button class="close" id="lbClose">Close ✕</button>
+  <div class="inner">
+    <div class="media" id="lbMedia"></div>
+    <aside class="side">
+      <div class="num" id="lbNum"></div>
+      <h2 id="lbTitle"></h2>
+      <div class="medium" id="lbMedium"></div>
+      <p id="lbText"></p>
+      <div class="ctrl">
+        <button id="lbPrev">← Previous</button>
+        <button id="lbNext">Next →</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="works.js"></script>
+<script>
+(function () {
+  const g = document.getElementById('gallery');
+  WORKS.forEach((w, i) => {
+    const el = document.createElement('article');
+    el.className = 'work';
+    el.innerHTML = `<figure><div class="frame"><img src="${w.thumb}" alt="${w.title}" loading="lazy">${w.video ? '<div class="play">▶</div>' : ''}</div>
+      <figcaption><div class="t"><span class="num">${w.n}</span>${w.title}</div><div class="m">${w.medium || ''}</div></figcaption></figure>`;
+    el.addEventListener('click', () => open(i));
+    g.appendChild(el);
+  });
+
+  const lb = document.getElementById('lb');
+  let cur = 0;
+  function open(i) {
+    cur = (i + WORKS.length) % WORKS.length;
+    const w = WORKS[cur];
+    const media = document.getElementById('lbMedia');
+    media.innerHTML = '';
+    if (w.video) {
+      const v = document.createElement('video');
+      v.src = w.video; v.controls = true; v.autoplay = true; v.loop = true; v.playsInline = true; v.poster = w.thumb;
+      media.appendChild(v);
+    } else {
+      const im = document.createElement('img'); im.src = w.img; im.alt = w.title; media.appendChild(im);
+      (w.extra || []).forEach(src => { const x = document.createElement('img'); x.src = src; x.alt = w.title + ', detail'; media.appendChild(x); });
+    }
+    document.getElementById('lbNum').textContent = w.n + ' / ' + String(WORKS.length).padStart(2, '0');
+    document.getElementById('lbTitle').textContent = w.title;
+    document.getElementById('lbMedium').textContent = w.medium || '';
+    document.getElementById('lbText').textContent = w.text;
+    lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
+    lb.scrollTop = 0;
+    history.replaceState(null, '', '#' + w.n);
+  }
+  function close() {
+    lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+    document.getElementById('lbMedia').innerHTML = '';
+    history.replaceState(null, '', location.pathname);
+  }
+  document.getElementById('lbClose').onclick = close;
+  document.getElementById('lbPrev').onclick = () => open(cur - 1);
+  document.getElementById('lbNext').onclick = () => open(cur + 1);
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') open(cur + 1);
+    if (e.key === 'ArrowLeft') open(cur - 1);
+  });
+  const h = location.hash.replace('#', '');
+  const idx = WORKS.findIndex(w => w.n === h);
+  if (idx >= 0) open(idx);
+})();
+</script>
+</body>
+</html>
